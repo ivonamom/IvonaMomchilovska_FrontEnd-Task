@@ -1,20 +1,22 @@
 const cardsContainer = document.querySelector(".preview");
 
 const numberOfColumnsInput = document.querySelector("#numberOfColumns");
+const cardSpaceBetweenInput = document.querySelector("#cardSpaceBetween");
 const darkThemeInput = document.querySelector("#darkTheme");
 const lightThemeInput = document.querySelector("#lightTheme");
 const cardBgColorInput = document.querySelector("#cardBackgroundColor");
-const loadMoreButton = document.querySelector("#loadMoreButton");
 const filterInputs = document.querySelectorAll(".filter input");
+const loadMoreButton = document.querySelector("#loadMoreButton");
 
 numberOfColumnsInput.addEventListener("change", changeNumberOfColumns);
+cardSpaceBetweenInput.addEventListener("keyup", changeCardSpaceBetween);
 darkThemeInput.addEventListener("change", toggleTheme);
 lightThemeInput.addEventListener("change", toggleTheme);
 cardBgColorInput.addEventListener("keyup", changeCardBgColor);
-loadMoreButton.addEventListener("click", loadMorePosts);
 filterInputs.forEach((input) => {
   input.addEventListener("change", filterPosts);
 });
+loadMoreButton.addEventListener("click", loadMorePosts);
 
 let posts = [];
 let numberOfPosts = 4;
@@ -53,8 +55,8 @@ function renderCards(start, end) {
     slicedArr = filteredPosts.slice(start, end);
   }
   slicedArr.forEach((post) => {
-    const col = createCard({ ...post });
-    cardsContainer.appendChild(col);
+    const card = createCard({ ...post });
+    cardsContainer.appendChild(card);
   });
 }
 
@@ -78,10 +80,6 @@ function createCard({
   name,
   profile_image,
 }) {
-  const col = document.createElement("div");
-  col.classList.add("col");
-  col.id = caption;
-
   const card = document.createElement("div");
   card.classList.add("card");
 
@@ -135,7 +133,6 @@ function createCard({
 
   footer.append(heartCont, likesSpan);
   card.appendChild(footer);
-  col.appendChild(card);
 
   // toggle like
 
@@ -187,18 +184,36 @@ function createCard({
     saveToLS(LS_LIKED_KEY, likedPosts);
   }
 
-  return col;
+  return card;
 }
 
 //function to change number of columns ----------------------
 function changeNumberOfColumns(ev) {
-  const flexBasis = 100 / ev.target.value;
+  const columns = ev.target.value;
+
+  if (columns === "dynamic") {
+    cardsContainer.style.gridTemplateColumns = `repeat(3, 1fr)`;
+    return;
+  }
 
   if (window.innerWidth > 992) {
-    const columns = document.querySelectorAll(".col");
-    columns.forEach((column) => {
-      column.style.flexBasis = `${flexBasis}%`;
-    });
+    cardsContainer.style.gridTemplateColumns = `repeat(${columns}, 1fr)`;
+  }
+}
+// function to change the gap between the cards------------------------------
+function changeCardSpaceBetween(ev) {
+  if (ev.key === "Enter") {
+    const value = ev.target.value;
+
+    if (value === "") {
+      cardSpaceBetweenInput.value = "10px";
+      cardsContainer.style.gridColumnGap = "10px";
+      cardsContainer.style.gridRowGap = "10px";
+      return;
+    }
+
+    cardsContainer.style.gridColumnGap = value;
+    cardsContainer.style.gridRowGap = value;
   }
 }
 //function to change card bg---------------------------------------------------
