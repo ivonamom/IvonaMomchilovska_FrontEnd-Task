@@ -12,6 +12,11 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="style.css" />
+    <!-- font awesome -->
+    <script
+      src="https://kit.fontawesome.com/19b2e2e0d5.js"
+      crossorigin="anonymous"
+    ></script>
   </head>
 
   <body>
@@ -21,8 +26,12 @@
           <h4 class="accordion-title">Settings panel</h4>
         </div>
         <div class="settings">
-          <label class="label"> Number of columns </label>
-          <select id="numberOfColumns" class="form-control">
+          <label class="label" for="numberOfColumns"> Number of columns </label>
+          <select
+            name="numberOfColumns"
+            id="numberOfColumns"
+            class="form-control"
+          >
             <option value="1">1</option>
             <option value="2">2</option>
             <option value="3">3</option>
@@ -31,16 +40,22 @@
             <option value="dynamic" selected>dynamic</option>
           </select>
 
-          <label class="label"> Card background color </label>
+          <label class="label" for="cardBackgroundColor">
+            Card background color
+          </label>
           <input
+            name="cardBackgroundColor"
             id="cardBackgroundColor"
             class="form-control"
             type="text"
             value="#ffffff"
           />
 
-          <label class="label"> Cards space between </label>
+          <label class="label" for="cardSpaceBetween">
+            Cards space between
+          </label>
           <input
+            name="cardSpaceBetween"
             id="cardSpaceBetween"
             class="form-control"
             type="text"
@@ -116,13 +131,13 @@
           </div>
         </div>
       </div>
-      <div class="preview">
-        <!-- Start creating layout html here -->
-
-        <div class="layout-placeholder">Layout should appear here</div>
+      <div>
+        <div class="preview">
+          <!-- Start creating layout html here -->
+        </div>
+        <button id="loadMoreButton">load more</button>
       </div>
     </div>
     <script src="index.js"></script>
-    <script src="server.js"></script>
   </body>
 </html>
