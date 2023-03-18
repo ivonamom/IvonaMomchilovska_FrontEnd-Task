@@ -1,14 +1,20 @@
+const cardsContainer = document.querySelector(".preview");
+
 const numberOfColumnsInput = document.querySelector("#numberOfColumns");
 const darkThemeInput = document.querySelector("#darkTheme");
 const lightThemeInput = document.querySelector("#lightTheme");
 const cardBgColorInput = document.querySelector("#cardBackgroundColor");
 const loadMoreButton = document.querySelector("#loadMoreButton");
+const filterInputs = document.querySelectorAll(".filter input");
 
 numberOfColumnsInput.addEventListener("change", changeNumberOfColumns);
 darkThemeInput.addEventListener("change", toggleTheme);
 lightThemeInput.addEventListener("change", toggleTheme);
 cardBgColorInput.addEventListener("keyup", changeCardBgColor);
 loadMoreButton.addEventListener("click", loadMorePosts);
+filterInputs.forEach((input) => {
+  input.addEventListener("change", filterPosts);
+});
 
 let posts = [];
 let numberOfPosts = 4;
@@ -35,7 +41,11 @@ fetch("data.json")
 
 //function that renders cards
 function renderCards(start, end) {
-  const cardsContainer = document.querySelector(".preview");
+  if (!filteredPosts.length) {
+    cardsContainer.innerHTML = "<h1>There are no posts from that source.</h1>";
+    loadMoreButton.style.display = "none";
+    return;
+  }
   let slicedArr = [];
   if (numberOfPosts >= filteredPosts.length - 4) {
     slicedArr = filteredPosts.slice(start);
@@ -218,6 +228,23 @@ function toggleTheme(ev) {
   } else {
     root.classList.remove("dark-theme");
   }
+}
+
+// function to filter cards------------------
+function filterPosts(ev) {
+  const value = ev.target.value;
+  console.log(ev);
+  if (value.toLowerCase() === "all") {
+    filteredPosts = posts;
+  } else {
+    filteredPosts = posts.filter(
+      (post) => post.source_type.toLowerCase() === value.toLowerCase()
+    );
+  }
+
+  cardsContainer.innerHTML = "";
+  numberOfPosts = 4;
+  renderCards(0, 4);
 }
 
 //HELPER FUNCTIONS --------------------
