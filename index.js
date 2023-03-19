@@ -1,3 +1,4 @@
+//selecting the elements from the DOM
 const cardsContainer = document.querySelector(".preview");
 
 const numberOfColumnsInput = document.querySelector("#numberOfColumns");
@@ -11,6 +12,7 @@ const accordion = document.querySelector(".accordion");
 const settingsPanel = document.querySelector(".settings");
 const noPostsContainer = document.querySelector(".no-posts");
 
+// adding event listeners to the elements
 numberOfColumnsInput.addEventListener("change", changeNumberOfColumns);
 cardSpaceBetweenInput.addEventListener("keyup", changeCardSpaceBetween);
 darkThemeInput.addEventListener("change", toggleTheme);
@@ -61,7 +63,7 @@ if (getFromLS(LS_POSTS_KEY)) {
   //initial render
   renderCards(0, 4);
 } else {
-  //fetch data--------------------------------------
+  //fetch data-----------------------------------------------------------------------------------------------------------------------
   fetch("data.json")
     .then((response) => response.json())
     .then((data) => {
@@ -80,7 +82,7 @@ if (getFromLS(LS_POSTS_KEY)) {
     .catch((error) => console.error(error));
 }
 
-//function that renders cards
+//function that renders cards------------------------------------------------------------------------------------------------------
 function renderCards(start, end) {
   if (!filteredPosts.length) {
     cardsContainer.style.display = "none";
@@ -109,14 +111,24 @@ function renderCards(start, end) {
 
     const popUp = createCard({ ...post }, "popup");
     card.addEventListener("click", () => {
-      document.body.appendChild(popUp);
+      if (window.innerWidth >= 992) {
+        //showing the popup when post is clicked- only on large screens
+        const color = cardBgColorInput.value;
+        const popUpCard = popUp.querySelector(".pop-up");
+        popUpCard.style.backgroundColor = color;
+        if (isLight(color)) {
+          popUpCard.style.color = "#333";
+        } else {
+          popUpCard.style.color = "#fff";
+        }
+        document.body.appendChild(popUp);
+      }
     });
-
     cardsContainer.appendChild(card);
   });
 }
 
-// function for load more
+// function for load more-------------------------------------------------------------------------------------------------------------
 function loadMorePosts() {
   numberOfPosts += 4;
   renderCards(numberOfPosts, numberOfPosts + 4);
@@ -124,12 +136,11 @@ function loadMorePosts() {
   if (numberOfPosts >= filteredPosts.length - 4) {
     loadMoreButton.style.display = "none";
   }
-
   //change color bg on the new cards too according to the value in input
   changeCardBgColor();
 }
 
-// function that creates and returns a card
+// function that creates and returns a card-------------------------------------------------------------------------------------------
 function createCard(
   { image, caption, source_type, date, likes, name, profile_image, id },
   type
@@ -140,7 +151,8 @@ function createCard(
   let popUpContainer;
 
   if (type === "card") {
-    card.classList.add("card", id);
+    card.classList.add("card");
+    card.classList.add(id);
     card.innerHTML = `
     <div>
     <div class="card-header">
@@ -169,6 +181,7 @@ function createCard(
 `;
   } else {
     card.classList.add("pop-up");
+    card.classList.add(id);
 
     popUpContainer = document.createElement("div");
     popUpContainer.classList.add("pop-up-container");
@@ -227,18 +240,47 @@ function createCard(
   footer.append(heartCont, likesSpan);
 
   if (type === "card") {
+    heartCont.classList.add("card-heart");
     card.appendChild(footer);
   } else {
+    heartCont.classList.add("pop-up-heart");
     rightSide.appendChild(footer);
     card.appendChild(rightSide);
+    card.addEventListener("click", (ev) => {
+      ev.stopPropagation();
+    });
     popUpContainer.appendChild(card);
   }
 
-  // toggle like
+  //returns the created card with the values given to it as parameters
+  if (type === "card") {
+    return card;
+  } else {
+    return popUpContainer;
+  }
+}
 
-  function toggleLike(ev) {
-    ev.stopImmediatePropagation();
-    isLiked = !isLiked;
+// function for liking/unliking the post ----------------------------------------------------------------------------
+function toggleLike(ev) {
+  ev.stopImmediatePropagation();
+
+  let id;
+  if (ev.target.parentElement.className.includes("card-heart")) {
+    id = ev.target.parentElement.parentElement.parentElement.classList[1];
+  } else {
+    id =
+      ev.target.parentElement.parentElement.parentElement.parentElement
+        .classList[1];
+  }
+
+  let isLiked = !!likedPosts.find((item) => item.id === id);
+  isLiked = !isLiked;
+
+  const cards = Array.from(document.getElementsByClassName(id));
+
+  cards.forEach((card) => {
+    const heartCont = card.querySelector(".heart-cont");
+    const likesSpan = card.querySelector(".likes-span");
 
     heartCont.innerHTML = `<i class="fa-${
       isLiked ? "solid" : "regular"
@@ -249,7 +291,7 @@ function createCard(
     if (isLiked) {
       posts = posts.map((post) => {
         if (post.id === id) {
-          likesSpan.innerHTML = +post.likes + 1;
+          likesSpan.innerText = +post.likes + 1;
           likedPosts.push({ ...post, likes: `${+post.likes + 1}` });
 
           return {
@@ -262,7 +304,7 @@ function createCard(
     } else {
       posts = posts.map((post) => {
         if (post.id === id) {
-          likesSpan.innerHTML = +post.likes - 1;
+          likesSpan.innerText = +post.likes - 1;
           likedPosts = likedPosts.filter((post) => post.id !== id);
 
           return {
@@ -273,16 +315,10 @@ function createCard(
         return post;
       });
     }
-    saveToLS(LS_LIKED_KEY, likedPosts);
-    saveToLS(LS_POSTS_KEY, posts);
-  }
+  });
 
-  //returns the created card with the values given to it as parameters
-  if (type === "card") {
-    return card;
-  } else {
-    return popUpContainer;
-  }
+  saveToLS(LS_LIKED_KEY, likedPosts);
+  saveToLS(LS_POSTS_KEY, posts);
 }
 
 //function that toggles settings panel---------------
@@ -417,5 +453,5 @@ function isLight(color) {
   const c_g = parseInt(hex.substring(2, 2 + 2), 16);
   const c_b = parseInt(hex.substring(4, 4 + 2), 16);
   const brightness = (c_r * 299 + c_g * 587 + c_b * 114) / 1000;
-  return brightness > 100;
+  return brightness > 155;
 }
