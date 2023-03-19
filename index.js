@@ -9,6 +9,7 @@ const filterInputs = document.querySelectorAll(".filter input");
 const loadMoreButton = document.querySelector("#loadMoreButton");
 const accordion = document.querySelector(".accordion");
 const settingsPanel = document.querySelector(".settings");
+const noPostsContainer = document.querySelector(".no-posts");
 
 numberOfColumnsInput.addEventListener("change", changeNumberOfColumns);
 cardSpaceBetweenInput.addEventListener("keyup", changeCardSpaceBetween);
@@ -20,6 +21,16 @@ filterInputs.forEach((input) => {
 });
 loadMoreButton.addEventListener("click", loadMorePosts);
 accordion.addEventListener("click", toggleSettingsPanel);
+//showing/hiding the settings panel when changing screen size
+window.addEventListener("resize", () => {
+  if (window.innerWidth >= 768) {
+    settingsPanel.style.display = "block";
+    cardBgColorInput.disabled = "false";
+  } else {
+    settingsPanel.style.display = "none";
+    cardBgColorInput.disabled = "true";
+  }
+});
 
 let numberOfPosts = 4;
 let settingsPanelIsOpen = false;
@@ -72,11 +83,20 @@ if (getFromLS(LS_POSTS_KEY)) {
 //function that renders cards
 function renderCards(start, end) {
   if (!filteredPosts.length) {
-    cardsContainer.innerHTML = "<h1>There are no posts from that source.</h1>";
+    cardsContainer.style.display = "none";
+    noPostsContainer.style.display = "flex";
     loadMoreButton.style.display = "none";
+
     return;
   }
-  loadMoreButton.style.display = "initial";
+  if (filteredPosts.length <= 4) {
+    loadMoreButton.style.display = "none";
+  } else {
+    loadMoreButton.style.display = "inline-block";
+  }
+  cardsContainer.style.display = "grid";
+  noPostsContainer.style.display = "none";
+
   //slicing the array so only the needed 4 posts are additionally rendered
   let slicedArr = [];
   if (numberOfPosts >= filteredPosts.length - 4) {
@@ -220,6 +240,7 @@ function toggleSettingsPanel() {
       settingsPanelIsOpen = true;
       settingsPanel.style.display = "block";
     }
+    //disable this option on smaller screens
     numberOfColumnsInput.disabled = "true";
   }
 }
