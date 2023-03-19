@@ -15,7 +15,9 @@ This project is created using vanillaJS and styled with plain CSS.
 
 ## Future Optimizations
 
-> Due to time constraints, the current code may not be fully optimized. However, I plan to continue working on this project and improving the code soon.
+> I am aware of a bug in the 'like posts' functionality on the popup, and I will fix it soon. However, due to time constraints, I am unable to address it at the moment. \
+
+> Due to time constraints, the current code may not be fully optimized. I plan to continue working on this project and improving the code soon.
 
 ## Design & Prototype Link
 
