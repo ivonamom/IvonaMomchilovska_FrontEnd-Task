@@ -7,6 +7,8 @@ const lightThemeInput = document.querySelector("#lightTheme");
 const cardBgColorInput = document.querySelector("#cardBackgroundColor");
 const filterInputs = document.querySelectorAll(".filter input");
 const loadMoreButton = document.querySelector("#loadMoreButton");
+const accordion = document.querySelector(".accordion");
+const settingsPanel = document.querySelector(".settings");
 
 numberOfColumnsInput.addEventListener("change", changeNumberOfColumns);
 cardSpaceBetweenInput.addEventListener("keyup", changeCardSpaceBetween);
@@ -17,8 +19,10 @@ filterInputs.forEach((input) => {
   input.addEventListener("change", filterPosts);
 });
 loadMoreButton.addEventListener("click", loadMorePosts);
+accordion.addEventListener("click", toggleSettingsPanel);
 
 let numberOfPosts = 4;
+let settingsPanelIsOpen = false;
 
 //array containing all posts
 let posts = [];
@@ -72,6 +76,7 @@ function renderCards(start, end) {
     loadMoreButton.style.display = "none";
     return;
   }
+  loadMoreButton.style.display = "initial";
   //slicing the array so only the needed 4 posts are additionally rendered
   let slicedArr = [];
   if (numberOfPosts >= filteredPosts.length - 4) {
@@ -203,6 +208,20 @@ function createCard(
 
   //returns the created card with the values given to it as parameters
   return card;
+}
+
+//function that toggles settings panel---------------
+function toggleSettingsPanel() {
+  if (window.innerWidth <= 768) {
+    if (settingsPanelIsOpen) {
+      settingsPanelIsOpen = false;
+      settingsPanel.style.display = "none";
+    } else {
+      settingsPanelIsOpen = true;
+      settingsPanel.style.display = "block";
+    }
+    numberOfColumnsInput.disabled = "true";
+  }
 }
 
 //function to change number of columns ----------------------

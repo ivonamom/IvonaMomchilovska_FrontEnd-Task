@@ -229,6 +229,29 @@ input[type="radio"] {
   .preview {
     grid-template-columns: repeat(1, 1fr);
   }
+
+  .container {
+    display: block;
+  }
+
+  .sidebar {
+    width: 100%;
+  }
+
+  .settings {
+    display: none;
+    position: absolute;
+    left: 0;
+    right: 0;
+    padding: 0 15px;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    border-bottom: 1px solid var(--border-color);
+    z-index: 1000;
+    box-shadow: -1px 14px 16px -5px rgba(0, 0, 0, 0.75);
+    -webkit-box-shadow: -1px 14px 16px -5px rgba(0, 0, 0, 0.75);
+    -moz-box-shadow: -1px 14px 16px -5px rgba(0, 0, 0, 0.75);
+  }
 }
 
 @media ((min-width: 769px )and (max-width: 992px)) {
