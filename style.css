@@ -78,6 +78,42 @@ p {
   justify-content: space-between;
   align-items: flex-start;
   border-radius: 2px;
+  cursor: pointer;
+}
+
+.pop-up-container {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  bottom: 0;
+  background-color: #33333351;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.pop-up {
+  border: 1px solid var(--border-color);
+  background-color: var(--background-color);
+  color: var(--text-color);
+  padding: 15px;
+  display: flex;
+  flex-direction: row;
+  border-radius: 2px;
+  max-width: 900px;
+  cursor: auto;
+}
+
+.pop-up .img-container {
+  flex-basis: 65%;
+  margin-right: 15px;
+}
+
+.pop-up-right-side {
+  flex-basis: 35%;
 }
 
 .card > div:first-of-type {
@@ -88,7 +124,9 @@ p {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding-bottom: 5px;
   margin-bottom: 15px;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .card-header__left {
@@ -110,7 +148,7 @@ p {
   height: 50px;
   border-radius: 50%;
   overflow: hidden;
-  margin-right: 20px;
+  margin-right: 10px;
 }
 
 .header-img img {

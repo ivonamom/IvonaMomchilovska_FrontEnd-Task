@@ -106,6 +106,12 @@ function renderCards(start, end) {
   }
   slicedArr.forEach((post) => {
     const card = createCard({ ...post }, "card");
+
+    const popUp = createCard({ ...post }, "popup");
+    card.addEventListener("click", () => {
+      document.body.appendChild(popUp);
+    });
+
     cardsContainer.appendChild(card);
   });
 }
@@ -129,14 +135,13 @@ function createCard(
   type
 ) {
   const card = document.createElement("div");
-  card.classList.add(`${type === "card" ? "card" : "pop-up"}`);
 
-  const popUp = document.querySelector(".pop-up");
-  card.addEventListener("click", () => {
-    popUp.style.display = "block";
-  });
+  let rightSide;
+  let popUpContainer;
 
-  card.innerHTML = `
+  if (type === "card") {
+    card.classList.add("card", id);
+    card.innerHTML = `
     <div>
     <div class="card-header">
       <div class="card-header__left">
@@ -162,6 +167,42 @@ function createCard(
 </div>
     </div>
 `;
+  } else {
+    card.classList.add("pop-up");
+
+    popUpContainer = document.createElement("div");
+    popUpContainer.classList.add("pop-up-container");
+    popUpContainer.addEventListener("click", () => {
+      popUpContainer.remove();
+    });
+
+    rightSide = document.createElement("div");
+    rightSide.classList.add("pop-up-right-side");
+
+    card.innerHTML = `
+    <div class="img-container">
+      <img src="${image}" alt="${caption}" />
+    </div>
+  
+`;
+    rightSide.innerHTML = `<div class="card-header">
+<div class="card-header__left">
+  <div class="header-img">
+    <img src="${profile_image}" alt="Profile image" />
+  </div>
+  <div class="header-name">
+    <h3>${name}</h3>
+    <span>${new Date(date).toLocaleDateString()}</span>
+  </div>
+</div>
+<div class="card-header__right">
+  <img src="/icons/${
+    source_type === "instagram" ? source_type + "-logo" : source_type
+  }.svg" alt="source logo" />
+</div>
+</div>
+<p>${caption}</p>`;
+  }
 
   //boolean value that shows if post is liked
   let isLiked = !!likedPosts.find((item) => item.id === id);
@@ -177,17 +218,26 @@ function createCard(
   } fa-heart"></i>`;
 
   const likesSpan = document.createElement("span");
+  likesSpan.classList.add("likes-span");
   likesSpan.innerText = likes;
 
   heartCont.removeEventListener("click", toggleLike);
   heartCont.addEventListener("click", toggleLike);
 
   footer.append(heartCont, likesSpan);
-  card.appendChild(footer);
+
+  if (type === "card") {
+    card.appendChild(footer);
+  } else {
+    rightSide.appendChild(footer);
+    card.appendChild(rightSide);
+    popUpContainer.appendChild(card);
+  }
 
   // toggle like
 
-  function toggleLike() {
+  function toggleLike(ev) {
+    ev.stopImmediatePropagation();
     isLiked = !isLiked;
 
     heartCont.innerHTML = `<i class="fa-${
@@ -195,6 +245,7 @@ function createCard(
     } fa-heart"></i>`;
 
     //regardless of whether the action was liking or disliking the post - change the like count, update the original array with the updated likes and add post to the liked posts array
+
     if (isLiked) {
       posts = posts.map((post) => {
         if (post.id === id) {
@@ -227,7 +278,11 @@ function createCard(
   }
 
   //returns the created card with the values given to it as parameters
-  return card;
+  if (type === "card") {
+    return card;
+  } else {
+    return popUpContainer;
+  }
 }
 
 //function that toggles settings panel---------------
