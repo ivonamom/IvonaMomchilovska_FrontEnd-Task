@@ -13,6 +13,10 @@ This project is created using vanillaJS and styled with plain CSS.
 - Choose Theme: The card layout can be switched to a dark theme by checking the "Dark Theme" checkbox.
 - Filter by Source: Cards can be filtered by source. Selecting "All" will display all posts again.
 
+## Future Optimizations
+
+> Due to time constraints, the current code may not be fully optimized. However, I plan to continue working on this project and improving the code soon.
+
 ## Design & Prototype Link
 
 A prototype of the project can be viewed here: \
