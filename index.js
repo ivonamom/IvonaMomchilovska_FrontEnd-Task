@@ -12,34 +12,58 @@ numberOfColumnsInput.addEventListener("change", changeNumberOfColumns);
 cardSpaceBetweenInput.addEventListener("keyup", changeCardSpaceBetween);
 darkThemeInput.addEventListener("change", toggleTheme);
 lightThemeInput.addEventListener("change", toggleTheme);
-cardBgColorInput.addEventListener("keyup", changeCardBgColor);
+cardBgColorInput.addEventListener("keyup", onColorInputKeyup);
 filterInputs.forEach((input) => {
   input.addEventListener("change", filterPosts);
 });
 loadMoreButton.addEventListener("click", loadMorePosts);
 
-let posts = [];
 let numberOfPosts = 4;
 
+//array containing all posts
+let posts = [];
+const LS_POSTS_KEY = "allPosts";
+
+//array containing only the likes posts
 let likedPosts = [];
 const LS_LIKED_KEY = "likedPosts";
 
+// array that contains the posts that should be displayed
 let filteredPosts = [];
 
 if (localStorage.getItem(LS_LIKED_KEY)) {
   likedPosts = getFromLS(LS_LIKED_KEY);
 }
 
-//fetch data--------------------------------------
-fetch("data.json")
-  .then((response) => response.json())
-  .then((data) => {
-    posts = data;
-    filteredPosts = data;
-    //initial render
-    renderCards(0, 4);
-  })
-  .catch((error) => console.error(error));
+//if the array is saved to LS - take it from there
+//otherwise fetch it from the data.json
+
+//only reason for doing this is to use my updated version of the array with the unique ids because they were not provided - this would NOT be the case in a realistic scenario
+
+if (getFromLS(LS_POSTS_KEY)) {
+  posts = getFromLS(LS_POSTS_KEY);
+  filteredPosts = posts;
+  //initial render
+  renderCards(0, 4);
+} else {
+  //fetch data--------------------------------------
+  fetch("data.json")
+    .then((response) => response.json())
+    .then((data) => {
+      const editedData = data.map((post) => {
+        return {
+          ...post,
+          id: uuidv4(),
+        };
+      });
+      saveToLS(LS_POSTS_KEY, editedData);
+      posts = editedData;
+      filteredPosts = editedData;
+      //initial render
+      renderCards(0, 4);
+    })
+    .catch((error) => console.error(error));
+}
 
 //function that renders cards
 function renderCards(start, end) {
@@ -48,6 +72,7 @@ function renderCards(start, end) {
     loadMoreButton.style.display = "none";
     return;
   }
+  //slicing the array so only the needed 4 posts are additionally rendered
   let slicedArr = [];
   if (numberOfPosts >= filteredPosts.length - 4) {
     slicedArr = filteredPosts.slice(start);
@@ -55,7 +80,7 @@ function renderCards(start, end) {
     slicedArr = filteredPosts.slice(start, end);
   }
   slicedArr.forEach((post) => {
-    const card = createCard({ ...post });
+    const card = createCard({ ...post }, "card");
     cardsContainer.appendChild(card);
   });
 }
@@ -68,20 +93,23 @@ function loadMorePosts() {
   if (numberOfPosts >= filteredPosts.length - 4) {
     loadMoreButton.style.display = "none";
   }
+
+  //change color bg on the new cards too according to the value in input
+  changeCardBgColor();
 }
 
 // function that creates and returns a card
-function createCard({
-  image,
-  caption,
-  source_type,
-  date,
-  likes,
-  name,
-  profile_image,
-}) {
+function createCard(
+  { image, caption, source_type, date, likes, name, profile_image, id },
+  type
+) {
   const card = document.createElement("div");
-  card.classList.add("card");
+  card.classList.add(`${type === "card" ? "card" : "pop-up"}`);
+
+  const popUp = document.querySelector(".pop-up");
+  card.addEventListener("click", () => {
+    popUp.style.display = "block";
+  });
 
   card.innerHTML = `
     <div>
@@ -110,10 +138,8 @@ function createCard({
     </div>
 `;
 
-  let isLiked = !!likedPosts.find(
-    (item) =>
-      item.caption === caption && item.image === image && item.date === date
-  );
+  //boolean value that shows if post is liked
+  let isLiked = !!likedPosts.find((item) => item.id === id);
 
   const footer = document.createElement("div");
   footer.classList.add("card-footer");
@@ -126,7 +152,7 @@ function createCard({
   } fa-heart"></i>`;
 
   const likesSpan = document.createElement("span");
-  likesSpan.innerText = isLiked ? +likes + 1 : likes;
+  likesSpan.innerText = likes;
 
   heartCont.removeEventListener("click", toggleLike);
   heartCont.addEventListener("click", toggleLike);
@@ -143,15 +169,10 @@ function createCard({
       isLiked ? "solid" : "regular"
     } fa-heart"></i>`;
 
+    //regardless of whether the action was liking or disliking the post - change the like count, update the original array with the updated likes and add post to the liked posts array
     if (isLiked) {
       posts = posts.map((post) => {
-        //filtering like this because they don't have a unique id
-        if (
-          post.caption === caption &&
-          post.image === image &&
-          post.date === date
-        ) {
-          heartCont.classList.add("liked");
+        if (post.id === id) {
           likesSpan.innerHTML = +post.likes + 1;
           likedPosts.push({ ...post, likes: `${+post.likes + 1}` });
 
@@ -164,14 +185,9 @@ function createCard({
       });
     } else {
       posts = posts.map((post) => {
-        if (
-          post.caption === caption &&
-          post.image === image &&
-          post.date === date
-        ) {
-          heartCont.classList.remove("liked");
+        if (post.id === id) {
           likesSpan.innerHTML = +post.likes - 1;
-          likedPosts = likedPosts.filter((post) => post.caption !== caption);
+          likedPosts = likedPosts.filter((post) => post.id !== id);
 
           return {
             ...post,
@@ -182,8 +198,10 @@ function createCard({
       });
     }
     saveToLS(LS_LIKED_KEY, likedPosts);
+    saveToLS(LS_POSTS_KEY, posts);
   }
 
+  //returns the created card with the values given to it as parameters
   return card;
 }
 
@@ -192,6 +210,7 @@ function changeNumberOfColumns(ev) {
   const columns = ev.target.value;
 
   if (columns === "dynamic") {
+    //returns value to default
     cardsContainer.style.gridTemplateColumns = `repeat(3, 1fr)`;
     return;
   }
@@ -216,21 +235,27 @@ function changeCardSpaceBetween(ev) {
     cardsContainer.style.gridRowGap = value;
   }
 }
-//function to change card bg---------------------------------------------------
-function changeCardBgColor(ev) {
-  if (ev.key === "Enter") {
-    const cards = document.querySelectorAll(".card");
-    const color = ev.target.value;
 
-    cards.forEach((card) => {
-      card.style.backgroundColor = color;
-      if (isLight(color)) {
-        card.style.color = "#333";
-      } else {
-        card.style.color = "#fff";
-      }
-    });
+// function for ColorInput
+function onColorInputKeyup(ev) {
+  if (ev.key === "Enter") {
+    changeCardBgColor();
   }
+}
+
+// function to change card bg---------------------------------------------------
+function changeCardBgColor() {
+  const cards = document.querySelectorAll(".card");
+  const color = cardBgColorInput.value;
+
+  cards.forEach((card) => {
+    card.style.backgroundColor = color;
+    if (isLight(color)) {
+      card.style.color = "#333";
+    } else {
+      card.style.color = "#fff";
+    }
+  });
 }
 
 //function to toggle theme--------------------------------------------------
@@ -240,15 +265,20 @@ function toggleTheme(ev) {
 
   if (theme === "darkTheme") {
     root.classList.add("dark-theme");
+    if (cardBgColorInput.value === "#ffffff") {
+      cardBgColorInput.value = "#333";
+    }
   } else {
     root.classList.remove("dark-theme");
+    if (cardBgColorInput.value === "#333") {
+      cardBgColorInput.value = "#ffffff";
+    }
   }
 }
 
 // function to filter cards------------------
 function filterPosts(ev) {
   const value = ev.target.value;
-  console.log(ev);
   if (value.toLowerCase() === "all") {
     filteredPosts = posts;
   } else {
@@ -260,6 +290,8 @@ function filterPosts(ev) {
   cardsContainer.innerHTML = "";
   numberOfPosts = 4;
   renderCards(0, 4);
+  //change color bg on the new cards too according to the value in input
+  changeCardBgColor();
 }
 
 //HELPER FUNCTIONS --------------------

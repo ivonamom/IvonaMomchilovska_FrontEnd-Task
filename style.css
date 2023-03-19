@@ -5,7 +5,7 @@
 :root {
   --text-color: #333;
   --background-color: #fff;
-  --border-color: #808080;
+  --border-color: #bebaba;
 }
 
 body {
@@ -199,12 +199,31 @@ input[type="radio"] {
   gap: 8px;
   margin-bottom: 20px;
 }
+.button-container {
+  width: 100%;
+  text-align: center;
+}
 
-/* #loadMoreButton {
-  position: absolute;
-  bottom: 50px;
-  left: 50px;
-} */
+#loadMoreButton {
+  padding: 8px 16px;
+  background-color: #0081ff;
+  color: white;
+  font-size: 18px;
+  text-transform: uppercase;
+  font-weight: bold;
+  outline: none;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  margin: 25px 0;
+  cursor: pointer;
+  transition: all 0.2s ease-in;
+}
+
+#loadMoreButton:hover {
+  color: #0081ff;
+  background-color: transparent;
+  border-color: #0081ff;
+}
 
 @media (max-width: 768px) {
   .preview {
