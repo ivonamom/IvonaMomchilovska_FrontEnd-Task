@@ -87,7 +87,7 @@ function renderCards(start, end) {
   if (!filteredPosts.length) {
     cardsContainer.style.display = "none";
     noPostsContainer.style.display = "flex";
-    loadMoreButton.style.display = "none";
+    // loadMoreButton.style.display = "none";
 
     return;
   }
@@ -109,10 +109,13 @@ function renderCards(start, end) {
   slicedArr.forEach((post) => {
     const card = createCard({ ...post }, "card");
 
-    const popUp = createCard({ ...post }, "popup");
     card.addEventListener("click", () => {
+      //showing the popup when post is clicked- only on large screens
       if (window.innerWidth >= 992) {
-        //showing the popup when post is clicked- only on large screens
+        //so it gets the current number of likes
+        const updatedPost = posts.find((item) => item.id === post.id);
+        const popUp = createCard({ ...updatedPost }, "popup");
+
         const color = cardBgColorInput.value;
         const popUpCard = popUp.querySelector(".pop-up");
         popUpCard.style.backgroundColor = color;
@@ -134,6 +137,7 @@ function loadMorePosts() {
   renderCards(numberOfPosts, numberOfPosts + 4);
   // hiding load more button when all posts are loaded
   if (numberOfPosts >= filteredPosts.length - 4) {
+    // numberOfPosts+4 ?maybe
     loadMoreButton.style.display = "none";
   }
   //change color bg on the new cards too according to the value in input
@@ -278,6 +282,7 @@ function toggleLike(ev) {
 
   const cards = Array.from(document.getElementsByClassName(id));
 
+  //if liking/unliking from the popup- update the original card at the same time
   cards.forEach((card) => {
     const heartCont = card.querySelector(".heart-cont");
     const likesSpan = card.querySelector(".likes-span");
@@ -286,36 +291,40 @@ function toggleLike(ev) {
       isLiked ? "solid" : "regular"
     } fa-heart"></i>`;
 
-    //regardless of whether the action was liking or disliking the post - change the like count, update the original array with the updated likes and add post to the liked posts array
+    const likesNumber = +likesSpan.innerText;
 
     if (isLiked) {
-      posts = posts.map((post) => {
-        if (post.id === id) {
-          likesSpan.innerText = +post.likes + 1;
-          likedPosts.push({ ...post, likes: `${+post.likes + 1}` });
-
-          return {
-            ...post,
-            likes: `${+post.likes + 1}`,
-          };
-        }
-        return post;
-      });
+      likesSpan.innerText = likesNumber + 1;
     } else {
-      posts = posts.map((post) => {
-        if (post.id === id) {
-          likesSpan.innerText = +post.likes - 1;
-          likedPosts = likedPosts.filter((post) => post.id !== id);
-
-          return {
-            ...post,
-            likes: `${+post.likes - 1}`,
-          };
-        }
-        return post;
-      });
+      likesSpan.innerText = likesNumber - 1;
     }
   });
+  //regardless of whether the action was liking or disliking the post - update the original array with the updated likes and add post to the liked posts array
+  if (isLiked) {
+    posts = posts.map((post) => {
+      if (post.id === id) {
+        likedPosts.push({ ...post, likes: `${+post.likes + 1}` });
+
+        return {
+          ...post,
+          likes: `${+post.likes + 1}`,
+        };
+      }
+      return post;
+    });
+  } else {
+    posts = posts.map((post) => {
+      if (post.id === id) {
+        likedPosts = likedPosts.filter((post) => post.id !== id);
+
+        return {
+          ...post,
+          likes: `${+post.likes - 1}`,
+        };
+      }
+      return post;
+    });
+  }
 
   saveToLS(LS_LIKED_KEY, likedPosts);
   saveToLS(LS_POSTS_KEY, posts);

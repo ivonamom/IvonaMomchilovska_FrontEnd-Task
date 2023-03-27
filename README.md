@@ -4,6 +4,11 @@ This project implements a cards layout with load more functionality. It allows t
 The heart icon on each card is clickable and can be used to increase/decrease the likes count and change the heart icon color.
 This project is created using vanillaJS and styled with plain CSS.
 
+## Design & Prototype Link
+
+A prototype of the project can be viewed here: \
+ https://www.figma.com/proto/sMOQbcnymnnqcjfsdDgy81/TASK-Frontend?node-id=29%3A200
+
 ## Features
 
 - Load More: Clicking the "Load More" button will load another four cards until all cards have been displayed. Once all cards are loaded, the "Load More" button is hidden.
@@ -13,16 +18,9 @@ This project is created using vanillaJS and styled with plain CSS.
 - Choose Theme: The card layout can be switched to a dark theme by checking the "Dark Theme" checkbox.
 - Filter by Source: Cards can be filtered by source. Selecting "All" will display all posts again.
 
-## Future Optimizations
+## Bug Fixes
 
-> I am aware of a bug in the 'like posts' functionality on the popup, and I will fix it soon. However, due to time constraints, I am unable to address it at the moment. \
-
-> Due to time constraints, the current code may not be fully optimized. I plan to continue working on this project and improving the code soon.
-
-## Design & Prototype Link
-
-A prototype of the project can be viewed here: \
- https://www.figma.com/proto/sMOQbcnymnnqcjfsdDgy81/TASK-Frontend?node-id=29%3A200
+> Fixed a bug where users were unable to like posts from the popup. Previously, attempting to like a post from the popup resulted in an error. This issue has been resolved by updating the relevant code, and users would now be able to like posts from the popup without any problems.
 
 ## Usage
 
@@ -53,6 +51,10 @@ This project is created using vanillaJS and styled with plain CSS.
 
 - The widget is responsive and will display one post in a row on mobile (<768px), two posts in a row on tablets (<992px), and the selected number of columns on desktop (>992px).
 - No 3rd party libraries or frameworks were used in the development of this project.
+
+## Future Optimizations
+
+Due to time constraints, the current code may not be fully optimized. I plan to continue working on this project and improving the code soon.
 
 ## Credits
 
