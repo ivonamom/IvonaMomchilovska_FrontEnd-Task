@@ -27,10 +27,10 @@ accordion.addEventListener("click", toggleSettingsPanel);
 window.addEventListener("resize", () => {
   if (window.innerWidth >= 768) {
     settingsPanel.style.display = "block";
-    cardBgColorInput.disabled = "false";
+    numberOfColumnsInput.removeAttribute("disabled");
   } else {
     settingsPanel.style.display = "none";
-    cardBgColorInput.disabled = "true";
+    numberOfColumnsInput.setAttribute("disabled", "disabled");
   }
 });
 
@@ -87,7 +87,6 @@ function renderCards(start, end) {
   if (!filteredPosts.length) {
     cardsContainer.style.display = "none";
     noPostsContainer.style.display = "flex";
-    // loadMoreButton.style.display = "none";
 
     return;
   }
@@ -137,7 +136,6 @@ function loadMorePosts() {
   renderCards(numberOfPosts, numberOfPosts + 4);
   // hiding load more button when all posts are loaded
   if (numberOfPosts >= filteredPosts.length - 4) {
-    // numberOfPosts+4 ?maybe
     loadMoreButton.style.display = "none";
   }
   //change color bg on the new cards too according to the value in input
